@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>হালাল ইনকাম - Halal Income App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Monetag Rewarded Interstitial Ad - আপনার দেওয়া সঠিক কোড -->
+    <script src='//libtl.com/sdk.js' data-zone='10619988' data-sdk='show_10619988'></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Kalpurush', 'SolaimanLipi', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a5f7a 0%, #159895 100%);
+            color: #333;
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+
+        /* নো ইন্টারনেট ওভারলে */
+        .no-internet-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .no-internet-overlay.active {
+            display: flex;
+        }
+
+        .no-internet-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+        }
+
+        .no-internet-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .no-internet-message {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        .retry-button {
+            background: linear-gradient(135deg, #1a5f7a, #159895);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .retry-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(26,95,122,0.3);
+        }
+
+        /* মূল কন্টেইনার */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            display: none;
+        }
+
+        .container.active {
+            display: block;
+        }
+
+        /* হেডার */
+        .app-header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 2px solid #FFD700;
+        }
+
+        .app-title {
+            color: #1a5f7a;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .balance-box {
+            background: linear-gradient(135deg, #1a5f7a, #159895);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(26,95,122,0.3);
+        }
+
+        .balance-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .taka-icon {
+            margin-right: 10px;
+            color: #FFD700;
+        }
+
+        /* মেনু অপশন বক্স */
+        .menu-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .menu-title {
+            color: #1a5f7a;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .menu-item {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 25px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 140px;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: #1a5f7a;
+        }
+
+        .menu-item:active {
+            transform: translateY(-2px);
+        }
+
+        .menu-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #1a5f7a;
+        }
+
+        .menu-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* উত্তোলন বক্স */
+        .withdraw-box {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255,165,0,0.3);
+            border: 2px solid transparent;
+        }
+
+        .withdraw-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255,165,0,0.4);
+            border-color: white;
+        }
+
+        .withdraw-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .withdraw-text {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* পেজ হেডার */
+        .page-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .back-button {
+            background: #1a5f7a;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: #159895;
+            transform: scale(1.05);
+        }
+
+        .page-title {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* রেজিস্ট্রেশন/লগইন ফর্ম */
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            color: #1a5f7a;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #1a5f7a;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26,95,122,0.1);
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #1a5f7a, #159895);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(26,95,122,0.3);
+        }
+
+        .submit-button:active {
+            transform: translateY(-1px);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .form-link {
+            color: #1a5f7a;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* এড দেখে টাকা পেজ */
+        .ad-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .ad-info {
+            background: linear-gradient(135deg, #1a5f7a, #159895);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            color: white;
+            text-align: center;
+        }
+
+        .ad-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #FFD700;
+        }
+
+        .ad-info-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .ad-button {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .ad-button:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255,165,0,0.4);
+        }
+
+        .ad-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .ad-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .result-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .result-info {
+            background: #cce5ff;
+            color: #004085;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #b8daff;
+        }
+
+        .daily-limit-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #1a5f7a;
+        }
+
+        .limit-title {
+            color: #1a5f7a;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .limit-icon {
+            margin-right: 10px;
+            color: #FFD700;
+        }
+
+        .limit-text {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* প্রগ্রেস বার */
+        .progress-bar-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #1a5f7a, #159895);
+            transition: width 0.3s ease;
+        }
+
+        /* উত্তোলন পেজ */
+        .withdraw-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .withdraw-alert {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(255,165,0,0.3);
+        }
+
+        .withdraw-info {
+            background: linear-gradient(135deg, #1a5f7a, #159895);
+            color: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(26,95,122,0.3);
+            border-left: 4px solid #FFD700;
+        }
+
+        .withdraw-note {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #FFD700;
+        }
+
+        .note-title {
+            color: #1a5f7a;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .note-icon {
+            margin-right: 10px;
+            color: #FFD700;
+        }
+
+        .note-text {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .method-title {
+            color: #1a5f7a;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .method-item {
+            border-radius: 15px;
+            padding: 15px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90px;
+            border: 3px solid transparent;
+        }
+
+        .method-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .method-item.selected {
+            border-color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .method-bkash {
+            background: linear-gradient(135deg, #E2136E, #D10861);
+            color: white;
+        }
+
+        .method-nagad {
+            background: linear-gradient(135deg, #FABD00, #E6AB00);
+            color: black;
+        }
+
+        .method-rocket {
+            background: linear-gradient(135deg, #8B2F8B, #7A257A);
+            color: white;
+        }
+
+        .method-logo {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .method-name {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .profile-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            max-width: 350px;
+            transform: translateX(150%);
+            transition: transform 0.5s;
+        }
+
+        .notification.active {
+            transform: translateX(0);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        .notification-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .notification-success .notification-icon {
+            color: #28a745;
+        }
+
+        .notification-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .notification-error .notification-icon {
+            color: #dc3545;
+        }
+
+        .notification-info {
+            border-left: 4px solid #1a5f7a;
+        }
+
+        .notification-info .notification-icon {
+            color: #1a5f7a;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 10px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 12px;
+            border-radius: 12px;
+            min-width: 70px;
+        }
+
+        .nav-item:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-item.active {
+            background: #1a5f7a;
+            color: white;
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .nav-text {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .menu-item {
+                padding: 20px 5px;
+                min-height: 130px;
+            }
+            
+            .menu-icon {
+                font-size: 2.2rem;
+            }
+            
+            .menu-text {
+                font-size: 1.1rem;
+            }
+            
+            .method-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 10px;
+            }
+            
+            .method-item {
+                padding: 12px 5px;
+                min-height: 80px;
+            }
+            
+            .method-logo {
+                font-size: 1.6rem;
+            }
+            
+            .method-name {
+                font-size: 0.9rem;
+            }
+            
+            .no-internet-title {
+                font-size: 1.5rem;
+            }
+            
+            .no-internet-message {
+                font-size: 1rem;
+            }
+            
+            .no-internet-icon {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- নো ইন্টারনেট ওভারলে -->
+    <div class="no-internet-overlay" id="noInternetOverlay">
+        <div class="no-internet-icon">
+            <i class="fas fa-wifi-slash"></i>
+        </div>
+        <div class="no-internet-title">ইন্টারনেট সংযোগ নেই</div>
+        <div class="no-internet-message">
+            দয়া করে আপনার ইন্টারনেট সংযোগ চেক করুন এবং পুনরায় চেষ্টা করুন। 
+            এই অ্যাপটি ব্যবহার করতে ইন্টারনেট সংযোগ প্রয়োজন।
+        </div>
+        <button class="retry-button" onclick="checkInternetConnection()">
+            <i class="fas fa-redo"></i> পুনরায় চেষ্টা করুন
+        </button>
+    </div>
+
+    <!-- নোটিফিকেশন -->
+    <div class="notification" id="notification">
+        <div class="notification-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="notification-message">সফলভাবে সম্পন্ন হয়েছে!</div>
+    </div>
+
+    <!-- হোম পেজ -->
+    <div class="container active" id="homePage">
+        <div class="app-header">
+            <div class="app-title">হালাল ইনকাম</div>
+            <div class="balance-box">
+                <div class="balance-label">আপনার ব্যালেন্স</div>
+                <div class="balance-amount">
+                    <i class="fas fa-taka-sign taka-icon"></i>
+                    <span id="balanceAmount">০.০০</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-container">
+            <div class="menu-title">ইনকামের মাধ্যম</div>
+            <div class="menu-grid">
+                <div class="menu-item" onclick="openPage('adPage')">
+                    <div class="menu-icon"><i class="fas fa-play-circle"></i></div>
+                    <div class="menu-text">এড দেখে ইনকাম</div>
+                </div>
+            </div>
+            
+            <div class="withdraw-box" onclick="openPage('withdrawPage')">
+                <div class="withdraw-icon"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="withdraw-text">উত্তোলন</div>
+            </div>
+        </div>
+
+        <div class="menu-container">
+            <div class="menu-title">অন্যান্য অপশন</div>
+            <div class="menu-grid">
+                <div class="menu-item" onclick="openPage('profilePage')">
+                    <div class="menu-icon"><i class="fas fa-user-circle"></i></div>
+                    <div class="menu-text">প্রোফাইল</div>
+                </div>
+                <div class="menu-item" onclick="logout()">
+                    <div class="menu-icon"><i class="fas fa-sign-out-alt"></i></div>
+                    <div class="menu-text">লগ আউট</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- রেজিস্ট্রেশন পেজ -->
+    <div class="container" id="registerPage">
+        <div class="page-header">
+            <button class="back-button" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="page-title">রেজিস্ট্রেশন</div>
+        </div>
+        
+        <div class="form-container">
+            <div class="form-title">নতুন অ্যাকাউন্ট তৈরি করুন</div>
+            <div class="input-group">
+                <label class="input-label">আপনার নাম</label>
+                <input type="text" class="input-field" id="regName" placeholder="আপনার পুরো নাম লিখুন">
+            </div>
+            <div class="input-group">
+                <label class="input-label">মোবাইল নাম্বার</label>
+                <input type="tel" class="input-field" id="regMobile" placeholder="01XXXXXXXXX">
+            </div>
+            <div class="input-group">
+                <label class="input-label">পাসওয়ার্ড</label>
+                <input type="password" class="input-field" id="regPassword" placeholder="কমপক্ষে ৬ অক্ষর">
+            </div>
+            <button class="submit-button" onclick="register()">রেজিস্টার করুন</button>
+            <div class="form-footer">
+                ইতিমধ্যে অ্যাকাউন্ট আছে? <span class="form-link" onclick="showLogin()">লগইন করুন</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- লগইন পেজ -->
+    <div class="container" id="loginPage">
+        <div class="page-header">
+            <button class="back-button" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="page-title">লগইন</div>
+        </div>
+        
+        <div class="form-container">
+            <div class="form-title">আপনার অ্যাকাউন্টে প্রবেশ করুন</div>
+            <div class="input-group">
+                <label class="input-label">মোবাইল নাম্বার</label>
+                <input type="tel" class="input-field" id="loginMobile" placeholder="01XXXXXXXXX">
+            </div>
+            <div class="input-group">
+                <label class="input-label">পাসওয়ার্ড</label>
+                <input type="password" class="input-field" id="loginPassword" placeholder="আপনার পাসওয়ার্ড">
+            </div>
+            <button class="submit-button" onclick="login()">লগইন করুন</button>
+            <div class="form-footer">
+                নতুন ব্যবহারকারী? <span class="form-link" onclick="showRegister()">রেজিস্টার করুন</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- এড দেখে টাকা পেজ - রিওয়ার্ডেড ইন্টারস্টিশিয়াল এড -->
+    <div class="container" id="adPage">
+        <div class="page-header">
+            <button class="back-button" onclick="goHome()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="page-title">এড দেখে ইনকাম</div>
+        </div>
+        
+        <div class="ad-container">
+            <div class="ad-info">
+                <i class="fas fa-video ad-icon"></i>
+                <div class="ad-info-text">
+                    <span style="font-size: 2rem; font-weight: bold; color: #FFD700;">৫ টাকা</span><br>
+                    প্রতিটি ভিডিও এড দেখে
+                </div>
+            </div>
+            
+            <!-- এড দেখার বাটন - এটাতে ক্লিক করলেই Rewarded Interstitial এড আসবে -->
+            <button class="ad-button" id="adButton" onclick="watchAd()">
+                <i class="fas fa-play-circle"></i> 
+                <span>এড দেখে ৫ টাকা আর্ন করুন</span>
+            </button>
+            
+            <div class="ad-result" id="adResult"></div>
+            
+            <div class="daily-limit-box">
+                <div class="limit-title">
+                    <i class="fas fa-chart-line limit-icon"></i>
+                    আজকের অগ্রগতি
+                </div>
+                <div class="limit-text">
+                    <!-- প্রগ্রেস বার -->
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    আজ দেখা এড: <strong><span id="remainingAds">০</span>/৮টি</strong><br>
+                    আজকের আয়: <strong><span id="todayEarnings">০</span> টাকা</strong><br>
+                    <small style="color: #666;">আজ আরো <span id="remainingEarnings">৪০</span> টাকা আয়ের সুযোগ!</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- উত্তোলন পেজ -->
+    <div class="container" id="withdrawPage">
+        <div class="page-header">
+            <button class="back-button" onclick="goHome()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="page-title">টাকা উত্তোলন</div>
+        </div>
+        
+        <div class="withdraw-container">
+            <div class="withdraw-alert">
+                <i class="fas fa-exclamation-circle"></i> সর্বনিম্ন উত্তোলন <strong>১২০০ টাকা</strong> 💸
+            </div>
+            
+            <div class="withdraw-info">
+                <i class="fas fa-calendar-alt"></i> 
+                <strong>উত্তোলনের সময়সূচী:</strong> প্রত্যেক মাসের <strong>১ থেকে ১০ তারিখ</strong> এর ভেতর উত্তোলন করা যাবে
+            </div>
+            
+            <div class="method-title">টাকা উত্তোলনের মাধ্যম</div>
+            <div class="method-grid">
+                <div class="method-item method-bkash" data-method="bkash" onclick="selectMethod('bkash')">
+                    <div class="method-logo">bKash</div>
+                    <div class="method-name">বিকাশ</div>
+                </div>
+                <div class="method-item method-nagad" data-method="nagad" onclick="selectMethod('nagad')">
+                    <div class="method-logo">Nagad</div>
+                    <div class="method-name">নগদ</div>
+                </div>
+                <div class="method-item method-rocket" data-method="rocket" onclick="selectMethod('rocket')">
+                    <div class="method-logo">Rocket</div>
+                    <div class="method-name">রকেট</div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">মোবাইল নাম্বার</label>
+                <input type="tel" class="input-field" id="withdrawMobile" placeholder="উত্তোলনের মোবাইল নাম্বার">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">উত্তোলনের পরিমাণ (টাকা)</label>
+                <input type="number" class="input-field" id="withdrawAmount" placeholder="১২০০ টাকা বা তার বেশি">
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">চার্জ (৫০ টাকা) <span style="color:#dc3545; font-size:0.9rem;">*সর্বনিম্ন উত্তোলনে ৫০ টাকা চার্জ প্রযোজ্য</span></label>
+                <input type="text" class="input-field" value="৫০ টাকা" readonly style="background:#f8f9fa;">
+            </div>
+            
+            <button class="submit-button" onclick="submitWithdrawal()">উত্তোলন অনুরোধ করুন</button>
+            
+            <div class="withdraw-note">
+                <div class="note-title">
+                    <i class="fas fa-info-circle note-icon"></i>
+                    উত্তোলন সম্পর্কে জানুন
+                </div>
+                <div class="note-text">
+                    • উত্তোলনের সময়: প্রতি মাসের <strong>১ থেকে ১০ তারিখ</strong> পর্যন্ত<br>
+                    • সর্বনিম্ন উত্তোলন: <strong>১২০০ টাকা</strong><br>
+                    • উত্তোলন চার্জ: <strong>৫০ টাকা</strong> (প্রতিবার উত্তোলনের জন্য)<br>
+                    • সর্বোচ্চ উত্তোলন: <strong>৫,০০০ টাকা</strong><br>
+                    • উত্তোলন অনুরোধ করার পর <strong>২৪-৪৮ ঘন্টার</strong> মধ্যে টাকা পৌঁছে যাবে<br>
+                    • মাসের অন্য সময়ে উত্তোলন অনুরোধ করা যাবে না<br>
+                    • <strong>দ্রষ্টব্য:</strong> ১২০০ টাকা উত্তোলন করলে ৫০ টাকা চার্জ কেটে ১১৫০ টাকা পাবেন
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- প্রোফাইল পেজ -->
+    <div class="container" id="profilePage">
+        <div class="page-header">
+            <button class="back-button" onclick="goHome()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="page-title">আপনার প্রোফাইল</div>
+        </div>
+        
+        <div class="form-container">
+            <div class="form-title" id="userName">মোহাম্মদ রহিম</div>
+            
+            <div class="profile-info">
+                <div class="input-label">মোবাইল নাম্বার</div>
+                <div class="input-field" style="background:transparent; border:none; padding:10px 0;" id="userMobile">০১৭১২৩৪৫৬৭৮</div>
+            </div>
+            
+            <div class="profile-info">
+                <div class="input-label">মোট উপার্জন</div>
+                <div class="input-field" style="background:transparent; border:none; padding:10px 0;">
+                    <i class="fas fa-taka-sign" style="color:#1a5f7a;"></i> 
+                    <span id="totalEarned" style="font-weight:bold; color:#1a5f7a;">০.০০</span> টাকা
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <div class="input-label">মোট উত্তোলন</div>
+                <div class="input-field" style="background:transparent; border:none; padding:10px 0;">
+                    <i class="fas fa-taka-sign" style="color:#1a5f7a;"></i> 
+                    <span id="totalWithdrawn" style="font-weight:bold; color:#1a5f7a;">০.০০</span> টাকা
+                </div>
+            </div>
+            
+            <button class="submit-button" onclick="logout()" style="background:linear-gradient(135deg, #dc3545, #c82333); margin-top:30px;">
+                <i class="fas fa-sign-out-alt"></i> লগ আউট
+            </button>
+        </div>
+    </div>
+
+    <!-- বটম নেভিগেশন -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="goHome()">
+            <div class="nav-icon"><i class="fas fa-home"></i></div>
+            <div class="nav-text">হোম</div>
+        </div>
+        <div class="nav-item" onclick="openPage('adPage')">
+            <div class="nav-icon"><i class="fas fa-play-circle"></i></div>
+            <div class="nav-text">এড</div>
+        </div>
+        <div class="nav-item" onclick="openPage('withdrawPage')">
+            <div class="nav-icon"><i class="fas fa-wallet"></i></div>
+            <div class="nav-text">উত্তোলন</div>
+        </div>
+        <div class="nav-item" onclick="openPage('profilePage')">
+            <div class="nav-icon"><i class="fas fa-user"></i></div>
+            <div class="nav-text">আমি</div>
+        </div>
+    </div>
+
+    <script>
+        // এপ্লিকেশন স্টেট
+        let appState = {
+            isLoggedIn: false,
+            balance: 0,
+            totalEarned: 0,
+            totalWithdrawn: 0,
+            userName: '',
+            userMobile: '',
+            selectedMethod: null,
+            totalEarnings: 0,
+            dailyAdsWatched: 0,
+            lastAdDate: null
+        };
+
+        const DAILY_AD_LIMIT = 8;
+        const AD_REWARD = 5;
+        // আপনার Monetag জোন আইডি - 10619988 (Rewarded Interstitial)
+        const MONETAG_ZONE_ID = '10619988';
+
+        // Monetag SDK ফাংশনের নাম তৈরি করুন
+        const monetagShowFunction = `show_${MONETAG_ZONE_ID}`;
+
+        // ইন্টারনেট সংযোগ চেক
+        function checkInternetConnection() {
+            const noInternetOverlay = document.getElementById('noInternetOverlay');
+            
+            if (navigator.onLine) {
+                noInternetOverlay.classList.remove('active');
+                return true;
+            } else {
+                noInternetOverlay.classList.add('active');
+                return false;
+            }
+        }
+
+        // DOM লোড হওয়ার পর
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!checkInternetConnection()) {
+                return;
+            }
+            
+            setTimeout(() => {
+                checkMonetagSDK();
+            }, 2000);
+            
+            setTimeout(() => {
+                checkLoginStatus();
+            }, 100);
+        });
+
+        window.addEventListener('online', function() {
+            checkInternetConnection();
+            showNotification('ইন্টারনেট সংযোগ পুনরুদ্ধার হয়েছে!', 'success');
+        });
+
+        window.addEventListener('offline', function() {
+            checkInternetConnection();
+        });
+
+        function checkMonetagSDK() {
+            if (typeof window[monetagShowFunction] === 'function') {
+                console.log('✅ Monetag Rewarded Interstitial SDK সফলভাবে লোড হয়েছে');
+                return true;
+            } else {
+                console.log('❌ Monetag SDK লোড হয়নি');
+                return false;
+            }
+        }
+
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            
+            if (isLoggedIn) {
+                appState.isLoggedIn = true;
+                appState.userName = localStorage.getItem('userName') || 'ব্যবহারকারী';
+                appState.userMobile = localStorage.getItem('userMobile') || '';
+                appState.balance = parseFloat(localStorage.getItem('balance')) || 0;
+                appState.totalEarned = parseFloat(localStorage.getItem('totalEarned')) || 0;
+                appState.totalWithdrawn = parseFloat(localStorage.getItem('totalWithdrawn')) || 0;
+                appState.totalEarnings = parseFloat(localStorage.getItem('totalEarnings')) || 0;
+                appState.dailyAdsWatched = parseInt(localStorage.getItem('dailyAdsWatched')) || 0;
+                appState.lastAdDate = localStorage.getItem('lastAdDate') || null;
+                
+                resetDailyLimitIfNeeded();
+                
+                updateBalanceDisplay();
+                showPage('homePage');
+            } else {
+                showPage('registerPage');
+            }
+        }
+
+        function resetDailyLimitIfNeeded() {
+            const today = new Date().toDateString();
+            if (appState.lastAdDate !== today) {
+                appState.dailyAdsWatched = 0;
+                appState.lastAdDate = today;
+                localStorage.setItem('dailyAdsWatched', '0');
+                localStorage.setItem('lastAdDate', today);
+            }
+        }
+
+        function showPage(pageId) {
+            if (!checkInternetConnection() && pageId !== 'registerPage' && pageId !== 'loginPage') {
+                return;
+            }
+            
+            const containers = document.querySelectorAll('.container');
+            containers.forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            document.getElementById(pageId).classList.add('active');
+            updateBottomNav(pageId);
+            
+            if (pageId === 'adPage') {
+                updateRemainingAdsDisplay();
+                checkMonetagSDK();
+            } else if (pageId === 'profilePage') {
+                updateProfileDisplay();
+            }
+        }
+
+        function updateProfileDisplay() {
+            document.getElementById('userName').textContent = appState.userName;
+            document.getElementById('userMobile').textContent = appState.userMobile;
+            
+            const totalEarnedValue = appState.balance + appState.totalWithdrawn;
+            document.getElementById('totalEarned').textContent = totalEarnedValue.toFixed(2);
+            document.getElementById('totalWithdrawn').textContent = appState.totalWithdrawn.toFixed(2);
+        }
+
+        function updateRemainingAdsDisplay() {
+            document.getElementById('remainingAds').textContent = appState.dailyAdsWatched;
+            
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) {
+                const percentage = (appState.dailyAdsWatched / DAILY_AD_LIMIT) * 100;
+                progressBar.style.width = `${percentage}%`;
+            }
+            
+            const todayEarnings = appState.dailyAdsWatched * AD_REWARD;
+            const todayEarningsEl = document.getElementById('todayEarnings');
+            if (todayEarningsEl) {
+                todayEarningsEl.textContent = todayEarnings;
+            }
+            
+            const remainingEarnings = document.getElementById('remainingEarnings');
+            if (remainingEarnings) {
+                remainingEarnings.textContent = (DAILY_AD_LIMIT * AD_REWARD) - todayEarnings;
+            }
+        }
+
+        function updateBottomNav(pageId) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            if (pageId === 'homePage') {
+                document.querySelector('.nav-item:nth-child(1)').classList.add('active');
+            } else if (pageId === 'adPage') {
+                document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+            } else if (pageId === 'withdrawPage') {
+                document.querySelector('.nav-item:nth-child(3)').classList.add('active');
+            } else if (pageId === 'profilePage') {
+                document.querySelector('.nav-item:nth-child(4)').classList.add('active');
+            }
+        }
+
+        function openPage(pageId) {
+            if (!appState.isLoggedIn && pageId !== 'registerPage' && pageId !== 'loginPage') {
+                showNotification('দুঃখিত! প্রথমে লগইন করুন।', 'error');
+                showPage('loginPage');
+                return;
+            }
+            showPage(pageId);
+        }
+
+        function goHome() {
+            showPage('homePage');
+        }
+
+        function goBack() {
+            if (appState.isLoggedIn) {
+                showPage('homePage');
+            } else {
+                showPage('registerPage');
+            }
+        }
+
+        function showRegister() {
+            showPage('registerPage');
+        }
+
+        function showLogin() {
+            showPage('loginPage');
+        }
+
+        function register() {
+            if (!checkInternetConnection()) {
+                showNotification('রেজিস্ট্রেশন করতে ইন্টারনেট সংযোগ প্রয়োজন।', 'error');
+                return;
+            }
+            
+            const name = document.getElementById('regName').value.trim();
+            const mobile = document.getElementById('regMobile').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            
+            if (!name || !mobile || !password) {
+                showNotification('সব তথ্য পূরণ করুন।', 'error');
+                return;
+            }
+            
+            if (mobile.length !== 11 || !mobile.startsWith('01')) {
+                showNotification('সঠিক মোবাইল নাম্বার দিন (01XXXXXXXXX)', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showNotification('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে।', 'error');
+                return;
+            }
+            
+            const today = new Date().toDateString();
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userMobile', mobile);
+            localStorage.setItem('balance', '0');
+            localStorage.setItem('totalEarned', '0');
+            localStorage.setItem('totalWithdrawn', '0');
+            localStorage.setItem('totalEarnings', '0');
+            localStorage.setItem('dailyAdsWatched', '0');
+            localStorage.setItem('lastAdDate', today);
+            
+            appState.isLoggedIn = true;
+            appState.userName = name;
+            appState.userMobile = mobile;
+            appState.balance = 0;
+            appState.totalEarned = 0;
+            appState.totalWithdrawn = 0;
+            appState.totalEarnings = 0;
+            appState.dailyAdsWatched = 0;
+            appState.lastAdDate = today;
+            
+            showNotification('সফলভাবে রেজিস্টার করা হয়েছে!', 'success');
+            updateBalanceDisplay();
+            showPage('homePage');
+        }
+
+        function login() {
+            if (!checkInternetConnection()) {
+                showNotification('লগইন করতে ইন্টারনেট সংযোগ প্রয়োজন।', 'error');
+                return;
+            }
+            
+            const mobile = document.getElementById('loginMobile').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (!mobile || !password) {
+                showNotification('মোবাইল নাম্বার ও পাসওয়ার্ড দিন।', 'error');
+                return;
+            }
+            
+            if (mobile === '01712345678' && password === '123456') {
+                const today = new Date().toDateString();
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userName', 'মোহাম্মদ রহিম');
+                localStorage.setItem('userMobile', mobile);
+                localStorage.setItem('balance', '850');
+                localStorage.setItem('totalEarned', '1200');
+                localStorage.setItem('totalWithdrawn', '350');
+                localStorage.setItem('totalEarnings', '1200');
+                localStorage.setItem('dailyAdsWatched', '3');
+                localStorage.setItem('lastAdDate', today);
+                
+                appState.isLoggedIn = true;
+                appState.userName = 'মোহাম্মদ রহিম';
+                appState.userMobile = mobile;
+                appState.balance = 850;
+                appState.totalEarned = 1200;
+                appState.totalWithdrawn = 350;
+                appState.totalEarnings = 1200;
+                appState.dailyAdsWatched = 3;
+                appState.lastAdDate = today;
+                
+                showNotification('সফলভাবে লগইন করা হয়েছে!', 'success');
+                updateBalanceDisplay();
+                showPage('homePage');
+            } else if (mobile === '01876543210' && password === '123456') {
+                const today = new Date().toDateString();
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userName', 'আব্দুল্লাহ আল মামুন');
+                localStorage.setItem('userMobile', mobile);
+                localStorage.setItem('balance', '620');
+                localStorage.setItem('totalEarned', '900');
+                localStorage.setItem('totalWithdrawn', '280');
+                localStorage.setItem('totalEarnings', '900');
+                localStorage.setItem('dailyAdsWatched', '5');
+                localStorage.setItem('lastAdDate', today);
+                
+                appState.isLoggedIn = true;
+                appState.userName = 'আব্দুল্লাহ আল মামুন';
+                appState.userMobile = mobile;
+                appState.balance = 620;
+                appState.totalEarned = 900;
+                appState.totalWithdrawn = 280;
+                appState.totalEarnings = 900;
+                appState.dailyAdsWatched = 5;
+                appState.lastAdDate = today;
+                
+                showNotification('সফলভাবে লগইন করা হয়েছে!', 'success');
+                updateBalanceDisplay();
+                showPage('homePage');
+            } else {
+                showNotification('ভুল মোবাইল নাম্বার বা পাসওয়ার্ড।', 'error');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            appState.isLoggedIn = false;
+            showNotification('সফলভাবে লগ আউট করা হয়েছে।', 'success');
+            setTimeout(() => {
+                showPage('registerPage');
+            }, 1000);
+        }
+
+        function updateBalanceDisplay() {
+            document.getElementById('balanceAmount').textContent = appState.balance.toFixed(2);
+            updateProfileDisplay();
+        }
+
+        function addBalance(amount) {
+            appState.balance += amount;
+            appState.totalEarnings += amount;
+            localStorage.setItem('balance', appState.balance.toString());
+            localStorage.setItem('totalEarnings', appState.totalEarnings.toString());
+            updateBalanceDisplay();
+        }
+
+        // ⭐ Rewarded Interstitial এড দেখার মূল ফাংশন
+        function watchAd() {
+            if (!checkInternetConnection()) {
+                showNotification('এড দেখতে ইন্টারনেট সংযোগ প্রয়োজন।', 'error');
+                return;
+            }
+            
+            if (appState.dailyAdsWatched >= DAILY_AD_LIMIT) {
+                showNotification(`দুঃখিত! আপনি আজ ${DAILY_AD_LIMIT}টি এড দেখেছেন। আগামীকাল আবার চেষ্টা করুন।`, 'error');
+                document.getElementById('adResult').innerHTML = '<div class="result-error">আজকের দৈনিক লিমিট শেষ!</div>';
+                return;
+            }
+            
+            document.getElementById('adButton').disabled = true;
+            document.getElementById('adButton').innerHTML = '<i class="fas fa-spinner fa-spin"></i> এড লোড হচ্ছে...';
+            document.getElementById('adResult').innerHTML = '<div class="result-info">এড লোড হচ্ছে, দয়া করে অপেক্ষা করুন...</div>';
+            
+            // Monetag Rewarded Interstitial এড ফাংশন কল করুন
+            if (typeof window[monetagShowFunction] === 'function') {
+                console.log('Monetag Rewarded Interstitial এড দেখানো হচ্ছে...');
+                
+                window[monetagShowFunction]()
+                    .then((result) => {
+                        console.log('✅ এড সফলভাবে দেখা হয়েছে:', result);
+                        
+                        // ইউজার এড পুরো দেখার পর টাকা যোগ হবে
+                        appState.dailyAdsWatched++;
+                        const today = new Date().toDateString();
+                        localStorage.setItem('dailyAdsWatched', appState.dailyAdsWatched.toString());
+                        localStorage.setItem('lastAdDate', today);
+                        
+                        addBalance(AD_REWARD);
+                        updateRemainingAdsDisplay();
+                        
+                        document.getElementById('adResult').innerHTML = `
+                            <div class="result-success">
+                                <i class="fas fa-check-circle"></i> 
+                                অভিনন্দন! +${AD_REWARD} টাকা যোগ হয়েছে!<br>
+                                আজ দেখা এড: ${appState.dailyAdsWatched}/${DAILY_AD_LIMIT}
+                            </div>
+                        `;
+                        
+                        showNotification(`${AD_REWARD} টাকা আপনার ব্যালেন্সে যোগ হয়েছে!`, 'success');
+                    })
+                    .catch((error) => {
+                        console.error('❌ এড দেখাতে সমস্যা:', error);
+                        document.getElementById('adResult').innerHTML = `
+                            <div class="result-error">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                এড দেখাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।
+                                <br><small>${error.message || ''}</small>
+                            </div>
+                        `;
+                        showNotification('এড দেখাতে সমস্যা হয়েছে।', 'error');
+                    })
+                    .finally(() => {
+                        document.getElementById('adButton').innerHTML = '<i class="fas fa-play-circle"></i> এড দেখে ৫ টাকা আর্ন করুন';
+                        document.getElementById('adButton').disabled = false;
+                    });
+            } else {
+                console.error('Monetag SDK লোড হয়নি। জোন আইডি চেক করুন:', MONETAG_ZONE_ID);
+                
+                // Monetag SDK লোড না হলে ডেমো মোড
+                document.getElementById('adResult').innerHTML = `
+                    <div class="result-info">
+                        <i class="fas fa-info-circle"></i>
+                        Monetag SDK লোড হচ্ছে... একটু পর আবার চেষ্টা করুন।
+                    </div>
+                `;
+                
+                document.getElementById('adButton').innerHTML = '<i class="fas fa-play-circle"></i> এড দেখে ৫ টাকা আর্ন করুন';
+                document.getElementById('adButton').disabled = false;
+                
+                showNotification('এড সিস্টেম লোড হচ্ছে...', 'info');
+            }
+        }
+
+        function selectMethod(method) {
+            appState.selectedMethod = method;
+            
+            document.querySelectorAll('.method-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            document.querySelector(`.method-item[data-method="${method}"]`).classList.add('selected');
+        }
+
+        function submitWithdrawal() {
+            if (!checkInternetConnection()) {
+                showNotification('উত্তোলন করতে ইন্টারনেট সংযোগ প্রয়োজন।', 'error');
+                return;
+            }
+            
+            const mobile = document.getElementById('withdrawMobile').value.trim();
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const WITHDRAWAL_CHARGE = 50;
+            
+            if (!appState.selectedMethod) {
+                showNotification('দয়া করে একটি মাধ্যম নির্বাচন করুন।', 'error');
+                return;
+            }
+            
+            if (!mobile || mobile.length !== 11 || !mobile.startsWith('01')) {
+                showNotification('সঠিক মোবাইল নাম্বার দিন (01XXXXXXXXX)', 'error');
+                return;
+            }
+            
+            if (!amount || amount < 1200) {
+                showNotification('সর্বনিম্ন ১২০০ টাকা উত্তোলন করতে হবে।', 'error');
+                return;
+            }
+            
+            const totalDeduction = amount + WITHDRAWAL_CHARGE;
+            
+            if (totalDeduction > appState.balance) {
+                showNotification(`আপনার ব্যালেন্স যথেষ্ট নয়। উত্তোলন করতে ${amount} + ${WITHDRAWAL_CHARGE} = ${totalDeduction} টাকা প্রয়োজন।`, 'error');
+                return;
+            }
+            
+            appState.balance -= totalDeduction;
+            appState.totalWithdrawn += amount;
+            
+            localStorage.setItem('balance', appState.balance.toString());
+            localStorage.setItem('totalWithdrawn', appState.totalWithdrawn.toString());
+            
+            updateBalanceDisplay();
+            
+            const methodNames = {
+                'bkash': 'বিকাশ',
+                'nagad': 'নগদ',
+                'rocket': 'রকেট'
+            };
+            
+            const receivedAmount = amount - WITHDRAWAL_CHARGE;
+            
+            showNotification(
+                `${methodNames[appState.selectedMethod]} এ ${receivedAmount} টাকা (${amount} - ${WITHDRAWAL_CHARGE} চার্জ) উত্তোলনের অনুরোধ পাঠানো হয়েছে! ২৪-৪৮ ঘন্টার মধ্যে পেমেন্ট করা হবে।`,
+                'success'
+            );
+            
+            document.getElementById('withdrawMobile').value = '';
+            document.getElementById('withdrawAmount').value = '';
+            document.querySelectorAll('.method-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            appState.selectedMethod = null;
+            
+            setTimeout(() => {
+                showPage('homePage');
+            }, 3000);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const icon = notification.querySelector('.notification-icon');
+            const messageElement = notification.querySelector('.notification-message');
+            
+            notification.className = 'notification';
+            notification.classList.add(`notification-${type}`);
+            
+            if (type === 'success') {
+                icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            } else if (type === 'error') {
+                icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+            } else {
+                icon.innerHTML = '<i class="fas fa-info-circle"></i>';
+            }
+            
+            messageElement.textContent = message;
+            notification.classList.add('active');
+            
+            setTimeout(() => {
+                notification.classList.remove('active');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
